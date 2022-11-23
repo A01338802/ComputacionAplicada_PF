@@ -11,39 +11,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 
-def gray2real(indiv):
-    g0 = indiv[0:8]
-    g1 = indiv[8:16]
-    g2 = indiv[16:24]
-
-    b0 = [g0[0]]
-    b1 = [g1[0]]
-    b2 = [g2[0]]
-
-    for i in range(7):
-        b0.append(int(b0[i])^int(g0[i+1]))
-        b1.append(int(b1[i])^int(g1[i+1]))
-        b2.append(int(b2[i])^int(g2[i+1]))
-
-    r0 = 0
-    r1 = 0
-    r2 = 0
-
-    print(b0)
-    print(b1)
-    print(b2)
-    for i in range(len(b0)):
-        r0 += b0[i]*2**(7-i)
-        r1 += b1[i]*2**(7-i)
-        r2 += b2[i]*2**(7-i)
-
-    r0 = (r0*4/255)-2
-    r1 = (r1*4/255)-2
-    r2 = (r2*4/255)-2
-    R = [r0,r1,r2]
-
-    return R
-
 def gray2real(indiv,gens):
   j = 0
   g = []
@@ -178,6 +145,7 @@ def main():
     gens.append(random.randint(4,6)) # w
     gens.append(random.randint(4,6)) # l
     c_len = sum(gens)
+    tg = 1000  # max generations
     pop = population(n,c_len)
     #######################################
     print("*** Genetic Algorithm ***")
@@ -186,7 +154,7 @@ def main():
     print("Chromosome config:\t",gens)
 
     bestfits_g = []
-    tg = 1000 #max generations
+    #tg = 1000 #max generations
     for i in range(tg):
       fit = []
       for indiv in pop:
@@ -247,12 +215,17 @@ def main():
       pop = newpop
 
     bestindex = fit.index(bestfits_g[-1])
-    print("best",bestfits_g[-1])
-    print(bestindex)
-    print(gray2real(pop[bestindex],gens))
+    bestIndiv = gray2real(pop[bestindex], gens)
+    print("Best Error:", bestfits_g[-1])
+    print("Individual [m,n,w,l] =", gray2real(pop[bestindex], gens))
+    print("R =", (bestIndiv[1] * (bestIndiv[0] + 1 / 3) + 1 / 3) * 25, "ohms")
+    print("W =", bestIndiv[2] * 0.3, "um")
+    print("L =", bestIndiv[3] * 0.3, "um")
+    print("W/L =", bestIndiv[2] / bestIndiv[3])
+    print("RW/L =", (bestIndiv[1] * (bestIndiv[0] + 1 / 3) + 1 / 3) * 25 * bestIndiv[2] / bestIndiv[3])
     plt.figure(1)
     plt.plot(bestfits_g)
     plt.show()
-    voltajes(gray2real(pop[bestindex],gens))
+    voltajes(gray2real(pop[bestindex], gens))
 
 main()
